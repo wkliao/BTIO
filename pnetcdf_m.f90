@@ -2,7 +2,6 @@
 !  Copyright (C) 2013, Northwestern University
 !  See COPYRIGHT notice in top-level directory.
 !
-!  $Id: pnetcdf_m.f90 4239 2017-03-14 23:34:39Z wkliao $
 
       module pnetcdf_m
       use mpi

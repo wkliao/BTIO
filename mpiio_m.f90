@@ -2,7 +2,6 @@
 !  Copyright (C) 2013, Northwestern University
 !  See COPYRIGHT notice in top-level directory.
 !
-!  $Id: mpiio_m.f90 2676 2014-05-21 23:51:20Z wkliao $
 
       module mpiio_m
       use mpi
@@ -62,12 +61,12 @@
          subsizes(2) = cell_size(2, c)
          subsizes(3) = cell_size(3, c)
 
-         ! Cell is 4th dimension, 1 cell per cell type to handle varying 
+         ! Cell is 4th dimension, 1 cell per cell type to handle varying
          ! cell sub-array sizes
          subsizes(4) = 1
 
          ! local buffer MPI derived type constructors use 0-based start addresses
-         starts(1) = 2 
+         starts(1) = 2
          starts(2) = 2
          starts(3) = 2
          starts(4) = c-1
@@ -77,8 +76,8 @@
               MPI_ORDER_FORTRAN, elemtype, cell_btype(c), err)
          call MPI_Type_commit(cell_btype(c), err)
 
-         ! block length and displacement for joining cells - 
-         ! 1 cell buftype per block, cell buftypes have own displacment
+         ! block length and displacement for joining cells -
+         ! 1 cell buftype per block, cell buftypes have own displacement
          ! generated from cell number (4th array dimension)
          cell_blength(c) = 1
          cell_disp(c) = 0

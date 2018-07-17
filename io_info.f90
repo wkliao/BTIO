@@ -2,7 +2,6 @@
 !  Copyright (C) 2013, Northwestern University
 !  See COPYRIGHT notice in top-level directory.
 !
-!  $Id: io_info.f90 2176 2013-11-06 22:13:59Z wkliao $
 
       !----< print_io_hints() >-----------------------------------------
       subroutine print_io_hints(info)

@@ -2,7 +2,6 @@
 !  Copyright (C) 2013, Northwestern University
 !  See COPYRIGHT notice in top-level directory.
 !
-!  $Id: bt.f90 3451 2015-11-09 03:46:47Z wkliao $
 
       !----< main >----------------------------------------------------
       program main

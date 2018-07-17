@@ -2,7 +2,6 @@
 !  Copyright (C) 2013, Northwestern University
 !  See COPYRIGHT notice in top-level directory.
 !
-!  $Id: header.f90 2176 2013-11-06 22:13:59Z wkliao $
 
       module header
       implicit none

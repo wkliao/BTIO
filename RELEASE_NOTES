@@ -4,4 +4,4 @@ version  1.1.1 (March 14, 2017)
 
   o Bug fix: indices of dimid array used in subroutine pnetcdf_inquiry of file
     pnetcdf_m.f90. Thanks to Tatiana Martsinkevich for reporting.
-    
+
