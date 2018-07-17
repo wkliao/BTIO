@@ -1,0 +1,5 @@
+w                  # IO mode:    w for write, r for read
+3                  # IO method:  0 for MPI collective I/O, 1 for MPI_independent I/O, 2 for PnetCDF blocking I/O, 3 for PnetCDF nonblocking I/O
+5                  # number of time steps
+16 16 16           # grid_points(1), grid_points(2), grid_points(3)
+./output
