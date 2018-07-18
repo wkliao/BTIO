@@ -96,6 +96,9 @@
       ! disable data sieving for write operations
       call MPI_Info_create(info, err)
       call MPI_Info_set(info, 'romio_ds_write', 'disable', err)
+      call MPI_Info_set(info, 'romio_cb_write', 'enable', err)
+      call MPI_Info_set(info, "nc_var_align_size", "1", err);
+      call MPI_Info_set(info, "nc_in_place_swap", "enable", err);
 
       if (io_mode .EQ. 'w') then
          omode = IOR(NF_CLOBBER, NF_64BIT_DATA)

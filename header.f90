@@ -46,6 +46,10 @@
           allocate( cell_size(3,ncells))
 
           allocate(u(5, -2:IMAX+1, -2:JMAX+1, -2:KMAX+1, ncells))
+
+          ! initialize contents of variable u
+          u(:, :, :, :, :) = 0
+
       end subroutine allocate_variables
 
       !----< deallocate_variables >------------------------------------

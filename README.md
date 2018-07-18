@@ -4,6 +4,7 @@ This software benchmarks the performance of
 [PnetCDF](https://parallel-netcdf.github.io) and MPI-IO methods for the I/O
 pattern used by the NASA's NAS Parallel Benchmarks (NPB) suite
 (http://www.nas.nasa.gov/publications/npb.html).
+The evaluation method is [strong scaling](https://en.wikipedia.org/wiki/Scalability#Weak_versus_strong_scaling).
 
 BTIO presents a block-tridiagonal partitioning pattern on a three-dimensional
 array across a square number of MPI processes. Each process is responsible for
