@@ -2,42 +2,47 @@
 
 This software benchmarks the performance of
 [PnetCDF](https://parallel-netcdf.github.io) and MPI-IO methods for the I/O
-and data partitioning pattern from the NASA's NAS Parallel Benchmarks (NPB)
-suite (http://www.nas.nasa.gov/publications/npb.html).
+pattern used by the NASA's NAS Parallel Benchmarks (NPB) suite
+(http://www.nas.nasa.gov/publications/npb.html).
 
 BTIO presents a block-tridiagonal partitioning pattern on a three-dimensional
-array across a square number of processes.  Each process is responsible for
+array across a square number of MPI processes. Each process is responsible for
 multiple Cartesian subsets of the entire data set, whose number increases with
-the square root of the number of processes participating in the computation.
-Multiple global arrays are consecutively written to a shared file by appending
-one after another. The number of global arrays can be adjusted in the input
-parameter file.  Each array is stored in the file in a canonical, row-major
-order.  The global arrays are later read back, using the same I/O and data
-partitioning pattern. The size of global array can also be adjusted from
-the input parameter file, named 'inputbt.data'. For an illustration of data
-partitioning pattern, please refer to:
+the square root of the number of processes participating in the computation.  A
+single global array with an `unlimited` dimension is created as a netCDF record
+variable in the output file.  The array is of five dimensions and only
+partitioned among processes along the middle three dimensions.  Each *record*
+is a subarray of the least significant four dimensions.  The number of records
+to write and read is user adjustable.  All records are consecutively written to
+a shared file in parallel by appending one record after another.  The array
+variable is stored in the file in a canonical, row-major order. To measure the
+read performance, the global variable is later read back, using the same data
+partitioning pattern. The size of global array can also be adjusted in the
+input parameter file 'inputbt.data'. For an illustration of data partitioning
+pattern, please refer to:
 * Wei-keng Liao. "Design and Evaluation of MPI File Domain Partitioning
   Methods under Extent-Based File Locking Protocol", in the IEEE Transactions
   on Parallel and Distributed Systems, 22(2):260-272, February 2011.
 
-## Instruction for compiling:
-Edit `Makefile` and change the following 3 variables
+## To compile:
+Edit `./Makefile` and change the following 3 variables.
 ```
         MPIF90        -- MPI Fortran compiler
-        FCFLAGS       -- Compile flag
-        PNETCDF_DIR   -- the path of PnetCDF library (1.4.0 and higher is required)
+        FCFLAGS       -- compile flag
+        PNETCDF_DIR   -- path of PnetCDF library (1.4.0 and higher is required)
 ```
 For example:
-```    
-        MPIF90      = mpif90
+```
+        MPIF90      = /usr/bin/mpif90
         FCFLAGS     = -O2
         PNETCDF_DIR = ${HOME}/PnetCDF
 ```
-Run command `make` to build the executable, named `btio`.
+Run command `make` to build the executable, named `btio`, in the current folder.
 
-## Instruction for running:
-The input parameter file named 'inputbt.data' is required to run the
-benchmark. Users can set the following parameters in the file.
+## To run:
+The input parameter file named 'inputbt.data' is required to run the benchmark.
+An example is provided in the current folder. Users can adjust the following
+parameters in the file.
 ```
         w        : IO mode: w for write, r for read
         IO method: for example, 0 for using MPI collective I/O
@@ -45,7 +50,7 @@ benchmark. Users can set the following parameters in the file.
         grid_points(1), grid_points(2), grid_points(3)
         directory name for storing the input and output files
 ```
-For example, the contents of `inputbt.data` file are:
+For example, the contents of file `inputbt.data` are:
 ```
         w                  # IO mode: w for write, r for read
         3                  # IO method: 0 for MPI collective IO, 1 for MPI independent IO, 2 for PnetCDF blocking I/O, 3 for PnetCDF nonblocking I/O
@@ -55,18 +60,20 @@ For example, the contents of `inputbt.data` file are:
 ```
 which set
  * (at first line) w to perform write operations only
- * (at second line) the I/O method to use Parallel netCDF nonblocking APIs
- * (at third line) number of global arrays for write and read
- * (at fourth line) the global array size
+ * (at second line) the I/O method to use PnetCDF nonblocking APIs
+ * (at third line) number of global arrays to write and read
+ * (at fourth line) the 3D global array size
  * (at fifth line) the input/output directory name.
 
-Note that btio creates a file named `btio.nc` containing a single 5D array of
-size `NUM_DUMPS x Z x Y x X x FIVE_DBL`. The data type of variable is `double`.
-`NUM_DUMPS` corresponds to the number of writes (or reads for read case). `Z`,
-`Y`, and `X` correspond to `grid_points(3)`, `grid_points(2)`, `grid_points(1)`,
-respectively. `FIVE_DBL` is the fifth dimension of size 5.
+Note that `btio` creates a file named `btio.nc` in the output directory
+containing a 5D array variable named `var` of size `NUM_DUMPS x Z x Y x X x
+FIVE_DBL`.  The variable's data type is `double`. The unlimited dimension
+`NUM_DUMPS` corresponds to the number of record writes (or reads for read
+case). `Z`, `Y`, and `X` correspond to `grid_points(3)`, `grid_points(2)`,
+`grid_points(1)`, respectively. `FIVE_DBL` is the fifth dimension of size 5,
+which is not partitioned among processes.
 
-Command to run the MPI job:
+Example command to run an MPI job:
 ```
         mpiexec -n 1024 ./btio
 ```
@@ -74,9 +81,9 @@ or
 ```
         mpiexec -n 1024 ./btio inputbt.data
 ```
-The only optional command-line argument is a file name. In this example, it
-is `inputbt.data`. This argument allows to use a different input file name
-from the default `inputbt.data`.
+The only optional command-line argument is the input parameter file name. In
+this example, it is `inputbt.data`. This argument allows to use a different
+input file name besides the default `inputbt.data`.
 
 ## Example output from the standard out:
 ```
@@ -94,6 +101,22 @@ from the default `inputbt.data`.
     output file path         : /scratch2/scratchdirs/wkliao/FS_1M_128
     file striping count      :       128
     file striping size       :   1048576 bytes
+```
+
+## Example metadata of the output file, `btio.nc`.
+```
+% ncdump -h ./btio.nc
+
+netcdf btio {
+dimensions:
+        FIVE_DBL = 5 ;
+        X = 512 ;
+        Y = 512 ;
+        Z = 512 ;
+        NUM_DUMPS = UNLIMITED ; // (40 currently)
+variables:
+        double var(NUM_DUMPS, Z, Y, X, FIVE_DBL) ;
+}
 ```
 
 ## Questions/Comments:

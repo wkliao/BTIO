@@ -5,3 +5,14 @@ version  1.1.1 (March 14, 2017)
   o Bug fix: indices of dimid array used in subroutine pnetcdf_inquiry of file
     pnetcdf_m.f90. Thanks to Tatiana Martsinkevich for reporting.
 
+-------------------------------------
+version  1.1.0 (April 22, 2016)
+-------------------------------------
+  o Remove the call to MPI_File_delete, as some MPI libraries fail to return
+    the expected error code.
+  o Fix input file name
+  o Free allocated resources
+
+-------------------------------------
+version  1.0.0 (November 19, 2013)
+-------------------------------------
