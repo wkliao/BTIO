@@ -41,7 +41,7 @@ bt.o:             bt.f90 header.o mpiio_m.o pnetcdf_m.f90
 
 PACKAGE_NAME = btio-pnetcdf-1.1.1
 
-PACKING_LIST = $(SRCS) Makefile README COPYRIGHT inputbt.data RELEASE_NOTES
+PACKING_LIST = $(SRCS) Makefile README.md COPYRIGHT inputbt.data RELEASE_NOTES
 
 dist:
 	/bin/rm -rf $(PACKAGE_NAME) $(PACKAGE_NAME).tar.gz
