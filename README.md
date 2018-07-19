@@ -104,7 +104,9 @@ input file name besides the default `inputbt.data`.
     file striping size       :   1048576 bytes
 ```
 
-## Example metadata of the output file, `btio.nc`.
+## Example metadata of the output file
+A single netCDF file named `btio.nc` will be created once the run completes.
+To show the file header, use the netCDF utility program `ncdump`.
 ```
 % ncdump -h ./btio.nc
 

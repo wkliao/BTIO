@@ -48,7 +48,7 @@
           allocate(u(5, -2:IMAX+1, -2:JMAX+1, -2:KMAX+1, ncells))
 
           ! initialize contents of variable u
-          u(:, :, :, :, :) = 0
+          call RANDOM_NUMBER(u(1:5,-2:IMAX+1,-2:JMAX+1,-2:KMAX+1,1:ncells))
 
       end subroutine allocate_variables
 

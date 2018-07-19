@@ -9,6 +9,8 @@
 #    PNETCDF_DIR   -- PnetCDF library installation directory
 #
 
+SUFFIXES = .o .f90
+
 MPIF90       = mpif90
 FCFLAGS      = -O2
 PNETCDF_DIR  = $(HOME)/PnetCDF/1.10.0

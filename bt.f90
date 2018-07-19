@@ -125,7 +125,7 @@
          striping_factor = 0
          striping_unit   = 0
          call get_file_striping(info_used, striping_factor, striping_unit)
-         call print_io_hints(info_used)
+         ! call print_io_hints(info_used)
 
          n3 = grid_points(1)*grid_points(2)*grid_points(3)
 
