@@ -17,6 +17,7 @@
       integer*8 n3
       integer striping_factor, striping_unit
       double precision navg, t, tmax
+      integer(kind=MPI_OFFSET_KIND) malloc_size, sum_size
 
       call MPI_Init(err)
       call MPI_Comm_size(MPI_COMM_WORLD, nprocs, err)
@@ -173,6 +174,29 @@
       endif
       if (info_used .NE. MPI_INFO_NULL) &
          call MPI_Info_free(info_used, err)
+
+      if (io_method .LT. 2) goto 999  ! MPI-IO method skip PnetCDF malloc check
+
+      ! print info about PnetCDF internal malloc usage
+      err = nfmpi_inq_malloc_max_size(malloc_size)
+      if (err .EQ. NF_NOERR) then
+          call MPI_Reduce(malloc_size, sum_size, 1, MPI_OFFSET, MPI_SUM, &
+                          0, MPI_COMM_WORLD, err)
+          if (rank .EQ. 0) then
+              print 2000, '------------------------------------------'
+              print 2003, &
+              'maximum heap memory allocted by PnetCDF internally is', &
+              sum_size/1048576, ' MiB'
+          endif
+
+          err = nfmpi_inq_malloc_size(malloc_size)
+          call MPI_Reduce(malloc_size, sum_size, 1, MPI_OFFSET, MPI_SUM, &
+                          0, MPI_COMM_WORLD, err)
+          if (rank .EQ. 0 .AND. sum_size .GT. 0_MPI_OFFSET_KIND) &
+              print 2003, &
+              'heap memory allocated by PnetCDF internally has ', &
+              sum_size, ' bytes yet to be freed'
+      endif
 
  999  call MPI_Finalize(err)
 
