@@ -15,6 +15,8 @@
       integer(KIND=MPI_OFFSET_KIND) put_size, get_size
       integer, allocatable :: buftypes(:), reqs(:), sts(:)
       logical doNonBlockingIO
+      double precision t_create, t_post_w, t_wait_w
+      double precision t_open,   t_post_r, t_wait_r
 
       private :: check
 
@@ -50,7 +52,7 @@
       sizes(3) = KMAX+4
 
       ! (ghost length = 2 on both ends)
-      gh_starts(1) = 2 
+      gh_starts(1) = 2
       gh_starts(2) = 2
       gh_starts(3) = 2
 
@@ -80,6 +82,9 @@
 
       ! local variables
       integer omode, info, err
+      double precision t
+
+      t = MPI_Wtime()
 
       pnetcdf_setup = 1
 
@@ -127,6 +132,14 @@
 
       ! get the info object used by MPI-IO library
       err = nfmpi_get_file_info(ncid, info_used)
+
+      t = MPI_Wtime() - t
+
+      if (io_mode .EQ. 'w') then
+          t_create = t
+      else
+          t_open = t
+      endif
 
       end function pnetcdf_setup
 
@@ -215,6 +228,9 @@
 
       integer c, err
       integer(KIND=MPI_OFFSET_KIND) starts(6), counts(6), nReqs
+      double precision t
+
+      t_post_w = MPI_Wtime()
 
       num_io = num_io +  1
 
@@ -244,6 +260,8 @@
          endif
       enddo
 
+      t = MPI_Wtime()
+
       if (doNonBlockingIO) then
           err = nfmpi_wait_all(ncid, ncells, reqs, sts)
           if (err .ne. NF_NOERR) call check(err, 'In nfmpi_wait_all:')
@@ -254,6 +272,9 @@
             call check(sts(c), 'In nfmpi_wait_all status error: ')
       enddo
 
+      t_wait_w = MPI_Wtime() - t
+      t_post_w = t - t_post_w
+
       end subroutine pnetcdf_write
 
       !---< pnetcdf_read >----------------------------------------------
@@ -262,6 +283,9 @@
 
       integer c, err
       integer(KIND=MPI_OFFSET_KIND) starts(6), counts(6), nReqs
+      double precision t
+
+      t_post_r = MPI_Wtime()
 
       num_io = num_io +  1
 
@@ -291,6 +315,8 @@
          endif
       enddo
 
+      t = MPI_Wtime()
+
       if (doNonBlockingIO) then
          err = nfmpi_wait_all(ncid, ncells, reqs, sts)
          if (err .ne. NF_NOERR) call check(err, 'In nfmpi_wait_all:')
@@ -300,6 +326,9 @@
          if (err .ne. NF_NOERR) &
             call check(sts(c), 'In nfmpi_wait_all status error: ')
       enddo
+
+      t_wait_r = MPI_Wtime() - t
+      t_post_r = t - t_post_r
 
       end subroutine pnetcdf_read
 

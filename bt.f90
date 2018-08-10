@@ -16,7 +16,7 @@
       integer i, err, argc, iargc, fstatus, io_method
       integer*8 n3
       integer striping_factor, striping_unit
-      double precision navg, t, tmax
+      double precision navg, t_total, tmax
       integer(kind=MPI_OFFSET_KIND) malloc_size, sum_size
 
       call MPI_Init(err)
@@ -62,7 +62,7 @@
             close(2)
          else
  234        format(' No input file inputbt.data. Exiting ...')
-            write(*,234) 
+            write(*,234)
             niter = -1
             goto 777
          endif
@@ -80,19 +80,19 @@
 
       call make_set
 
+      !---------------------------------------------------------------------
+      !      Synchronize before placing time stamp
+      !---------------------------------------------------------------------
+      call MPI_Barrier(MPI_COMM_WORLD, err)
+      t_total = MPI_Wtime()
+      num_io = 0
+
       if (io_method .LT. 2) then ! 0: collective I/O, 1: independent I/O
          err = mpiio_setup(io_mode)
       else
          err = pnetcdf_setup(io_mode, io_method)
       endif
       if (err .EQ. 0) goto 999
-
-      !---------------------------------------------------------------------
-      !      Synchronize before placing time stamp
-      !---------------------------------------------------------------------
-      call MPI_Barrier(MPI_COMM_WORLD, err)
-      t = MPI_Wtime()
-      num_io = 0
 
       do i=1, niter
          if (io_mode .EQ. 'w') then
@@ -118,9 +118,31 @@
 
       call deallocate_variables
 
-      t = MPI_Wtime() - t
-      call MPI_Reduce(t, tmax, 1, MPI_DOUBLE_PRECISION, MPI_MAX,  &
+      t_total = MPI_Wtime() - t_total
+      call MPI_Reduce(t_total, tmax, 1, MPI_DOUBLE_PRECISION, MPI_MAX, &
                       root, MPI_COMM_WORLD, err)
+      t_total = tmax
+      if (io_mode .EQ. 'w') then
+          call MPI_Reduce(t_create, tmax, 1, MPI_DOUBLE_PRECISION, &
+                          MPI_MAX, root, MPI_COMM_WORLD, err)
+          t_create = tmax
+          call MPI_Reduce(t_post_w, tmax, 1, MPI_DOUBLE_PRECISION, &
+                          MPI_MAX, root, MPI_COMM_WORLD, err)
+          t_post_w = tmax
+          call MPI_Reduce(t_wait_w, tmax, 1, MPI_DOUBLE_PRECISION, &
+                          MPI_MAX, root, MPI_COMM_WORLD, err)
+          t_wait_w = tmax
+      else
+          call MPI_Reduce(t_open, tmax, 1, MPI_DOUBLE_PRECISION, &
+                          MPI_MAX, root, MPI_COMM_WORLD, err)
+          t_open = tmax
+          call MPI_Reduce(t_post_r, tmax, 1, MPI_DOUBLE_PRECISION, &
+                          MPI_MAX, root, MPI_COMM_WORLD, err)
+          t_post_r = tmax
+          call MPI_Reduce(t_wait_r, tmax, 1, MPI_DOUBLE_PRECISION, &
+                          MPI_MAX, root, MPI_COMM_WORLD, err)
+          t_wait_r = tmax
+      endif
 
       if ( rank .eq. root ) then
          striping_factor = 0
@@ -146,15 +168,23 @@
          else
             print 2000,'-- BT-IO Benchmark (read  operation only) --'
          endif
-         print 2002,'Number of MPI processes  : ',nprocs
-         print 2002,'Global array size X      : ',grid_points(1)
-         print 2002,'Global array size Y      : ',grid_points(2)
-         print 2002,'Global array size Z      : ',grid_points(3)
-         print 2002,'Number of I/O iterations : ',niter
-         print 2005,'Totail I/O amount        : ',navg, ' MiB'
-         print 2004,'Time in sec              : ',tmax
-
-         navg = navg / tmax      ! I/O Bandwidth in MB/s
+         print 2002,'Number of MPI processes     : ',nprocs
+         print 2002,'Global array size X         : ',grid_points(1)
+         print 2002,'Global array size Y         : ',grid_points(2)
+         print 2002,'Global array size Z         : ',grid_points(3)
+         print 2002,'Number of I/O iterations    : ',niter
+         print 2005,'Total I/O amount            : ',navg, ' MiB'
+         print 2004,'Total I/O time in sec       : ',t_total
+         if (io_mode .EQ. 'w') then
+         print 2004,'Max file create time in sec : ',t_create
+         print 2004,'Max write post  time in sec : ',t_post_w
+         print 2004,'Max write wait  time in sec : ',t_wait_w
+         else
+         print 2004,'Max file open   time in sec : ',t_open
+         print 2004,'Max read post   time in sec : ',t_post_r
+         print 2004,'Max read wait   time in sec : ',t_wait_r
+         endif
+         navg = navg / t_total      ! I/O Bandwidth in MB/s
          print 2005,'I/O bandwidth            : ',navg, ' MiB/s'
 
          print 2000, '------------------------------------------'
