@@ -84,6 +84,11 @@
       integer omode, info, err
       double precision t
 
+      t_post_w = 0.0
+      t_wait_w = 0.0
+      t_post_r = 0.0
+      t_wait_r = 0.0
+
       t = MPI_Wtime()
 
       pnetcdf_setup = 1
@@ -228,9 +233,9 @@
 
       integer c, err
       integer(KIND=MPI_OFFSET_KIND) starts(6), counts(6), nReqs
-      double precision t
+      double precision t_start, t_end
 
-      t_post_w = MPI_Wtime()
+      t_start = MPI_Wtime()
 
       num_io = num_io +  1
 
@@ -260,7 +265,9 @@
          endif
       enddo
 
-      t = MPI_Wtime()
+      t_end = MPI_Wtime()
+      t_post_w = t_post_w + t_end - t_start
+      t_start = t_end
 
       if (doNonBlockingIO) then
           err = nfmpi_wait_all(ncid, ncells, reqs, sts)
@@ -272,8 +279,8 @@
             call check(sts(c), 'In nfmpi_wait_all status error: ')
       enddo
 
-      t_wait_w = MPI_Wtime() - t
-      t_post_w = t - t_post_w
+      t_end = MPI_Wtime()
+      t_wait_w = t_wait_w + t_end - t_start
 
       end subroutine pnetcdf_write
 
@@ -283,9 +290,9 @@
 
       integer c, err
       integer(KIND=MPI_OFFSET_KIND) starts(6), counts(6), nReqs
-      double precision t
+      double precision t_start, t_end
 
-      t_post_r = MPI_Wtime()
+      t_start = MPI_Wtime()
 
       num_io = num_io +  1
 
@@ -315,7 +322,9 @@
          endif
       enddo
 
-      t = MPI_Wtime()
+      t_end = MPI_Wtime()
+      t_post_r = t_post_r + t_end - t_start
+      t_start = t_end
 
       if (doNonBlockingIO) then
          err = nfmpi_wait_all(ncid, ncells, reqs, sts)
@@ -327,8 +336,8 @@
             call check(sts(c), 'In nfmpi_wait_all status error: ')
       enddo
 
-      t_wait_r = MPI_Wtime() - t
-      t_post_r = t - t_post_r
+      t_end = MPI_Wtime()
+      t_wait_r = t_wait_r + t_end - t_start
 
       end subroutine pnetcdf_read
 
