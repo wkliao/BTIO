@@ -19,11 +19,21 @@ a shared file in parallel by appending one record after another.  The array
 variable is stored in the file in a canonical, row-major order. To measure the
 read performance, the global variable is later read back, using the same data
 partitioning pattern. The size of global array can also be adjusted in the
-input parameter file 'inputbt.data'. For an illustration of data partitioning
-pattern, please refer to:
+input parameter file 'inputbt.data'. Figure 1 below shows an illustration of
+data partitioning pattern for the case when the number of MPI processes is 9.
+For more detailed description, please refer to:
 * Wei-keng Liao. "Design and Evaluation of MPI File Domain Partitioning
   Methods under Extent-Based File Locking Protocol", in the IEEE Transactions
   on Parallel and Distributed Systems, 22(2):260-272, February 2011.
+
+
+<p align="center">
+<img align="center" width="400" src="btio_pattern.png">
+</p>
+
+**Figure 1.** BTIO data partitioning pattern, The 4D subarray in each process
+is mapped to the global array in a block-tridiagonal fashion. This example uses
+9 processes and highlights the mapping for process P6.
 
 ## To compile:
 Edit `./Makefile` and change the following 3 variables.
