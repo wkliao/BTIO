@@ -52,16 +52,8 @@ Run command `make` to build the executable, named `btio`, in the current folder.
 
 ## To run:
 The input parameter file named 'inputbt.data' is required to run the benchmark.
-An example is provided in the current folder. Users can adjust the following
-parameters in the file.
-```
-        w        : IO mode: w for write, r for read
-        IO method: for example, 0 for using MPI collective I/O
-        number of time steps
-        grid_points(1), grid_points(2), grid_points(3)
-        directory name for storing the input and output files
-```
-For example, the contents of file `inputbt.data` are:
+An example is provided in the current folder and shown below. Users can adjust
+the parameters in the file.
 ```
         w                  # IO mode: w for write, r for read
         3                  # IO method: 0 for MPI collective IO, 1 for MPI independent IO, 2 for PnetCDF blocking I/O, 3 for PnetCDF nonblocking I/O
@@ -70,19 +62,20 @@ For example, the contents of file `inputbt.data` are:
         /scratch2/scratchdirs/wkliao/FS_1M_128
 ```
 which set
- * (at first line) w to perform write operations only
- * (at second line) the I/O method to use PnetCDF nonblocking APIs
- * (at third line) number of global arrays to write and read
- * (at fourth line) the 3D global array size
- * (at fifth line) the input/output directory name.
+ * (first line) w is to perform write operations only
+ * (second line) 3 is the I/O method to use PnetCDF nonblocking APIs
+ * (third line) 40 is the number of global arrays to write to the file
+ * (fourth line) 512 512 512 are the 3D global array sizes
+ * (fifth line) the input/output directory name
 
 Note that `btio` creates a file named `btio.nc` in the output directory
 containing a 5D array variable named `var` of size `NUM_DUMPS x Z x Y x X x
-FIVE_DBL`.  The variable's data type is `double`. The unlimited dimension
-`NUM_DUMPS` corresponds to the number of record writes (or reads for read
-case). `Z`, `Y`, and `X` correspond to `grid_points(3)`, `grid_points(2)`,
-`grid_points(1)`, respectively. `FIVE_DBL` is the fifth dimension of size 5,
-which is not partitioned among processes.
+FIVE_DBL`.  The variable's data type is an 8-byte `double precision`. The
+unlimited dimension `NUM_DUMPS` corresponds to the number of record writes (or
+reads for read case). The dimension sizes of global array are `Z`, `Y`, and `X`
+correspond to `grid_points(3)`, `grid_points(2)`, `grid_points(1)`,
+respectively. `FIVE_DBL` is the fifth dimension of size 5, which is not
+partitioned among processes.
 
 Example command to run an MPI job:
 ```
@@ -94,7 +87,8 @@ or
 ```
 The only optional command-line argument is the input parameter file name. In
 this example, it is `inputbt.data`. This argument allows to use a different
-input file name besides the default `inputbt.data`.
+input file name besides the default `inputbt.data`. If this argument is not
+provided, the default is `./inputbt.data` under the current directory.
 
 ## Example output from the standard out:
 ```

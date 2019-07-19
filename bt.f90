@@ -12,7 +12,7 @@
       implicit none
 
       character io_mode
-      character(LEN=128) filename, cmd
+      character(LEN=512) filename, cmd
       integer i, err, argc, iargc, fstatus, io_method
       integer*8 n3
       integer striping_factor, striping_unit
@@ -72,7 +72,7 @@
       call MPI_Bcast(io_method,   1, MPI_INTEGER,   root, MPI_COMM_WORLD, err)
       call MPI_Bcast(niter,       1, MPI_INTEGER,   root, MPI_COMM_WORLD, err)
       call MPI_Bcast(grid_points, 3, MPI_INTEGER8,  root, MPI_COMM_WORLD, err)
-      call MPI_Bcast(dir_path,  128, MPI_CHARACTER, root, MPI_COMM_WORLD, err)
+      call MPI_Bcast(dir_path,  512, MPI_CHARACTER, root, MPI_COMM_WORLD, err)
 
       if (niter .EQ. -1) goto 999
 

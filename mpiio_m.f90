@@ -8,7 +8,7 @@
       use header
       implicit none
 
-      character(len=128) mpi_filenm
+      character(len=512) mpi_filenm
       integer fp, combined_btype, elemtype, combined_ftype, filetype
 
       contains

@@ -10,7 +10,7 @@
       implicit none
 
       integer ncid, dimid(5), varid
-      character(len=128) nc_filenm
+      character(len=512) nc_filenm
       integer(KIND=MPI_OFFSET_KIND) global_five_dbl, num_dumps
       integer(KIND=MPI_OFFSET_KIND) put_size, get_size
       integer, allocatable :: buftypes(:), reqs(:), sts(:)

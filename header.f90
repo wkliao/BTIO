@@ -25,7 +25,7 @@
 
       integer rank, nprocs, root, niter, info_used
 
-      character(len=128) dir_path
+      character(len=512) dir_path
 
       contains
 
