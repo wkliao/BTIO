@@ -20,7 +20,7 @@
       character io_mode   ! 'w' for write and 'r' for read
 
       ! local variables
-      integer c, omode, info, err, elemsize, err_len
+      integer c, omode, err, elemsize, err_len
       integer sizes(4), starts(4), subsizes(4)
       integer(KIND=MPI_ADDRESS_KIND) lb, gsize
       integer(KIND=MPI_OFFSET_KIND) iseek
@@ -146,19 +146,14 @@
          omode = MPI_MODE_RDONLY
       endif
 
-      !      disable data sieving for write operations
-      call MPI_Info_create(info, err)
-      call MPI_Info_set(info, 'romio_ds_write', 'disable', err)
-
       call MPI_File_open(MPI_COMM_WORLD, trim(mpi_filenm), omode, &
-                         info, fp, err)
+                         MPI_INFO_NULL, fp, err)
       if (err .ne. MPI_SUCCESS) then
          call MPI_Error_string(err, err_string, err_len, err)
          print *, 'Error opening file: ',trim(err_string)
          mpiio_setup = 0
          return
       endif
-      call MPI_Info_free(info, err)
 
       iseek=0  ! type of MPI_OFFSET_KIND
       call MPI_File_set_view(fp, iseek, MPI_BYTE, filetype, &
