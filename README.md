@@ -77,6 +77,19 @@ correspond to `grid_points(3)`, `grid_points(2)`, `grid_points(1)`,
 respectively. `FIVE_DBL` is the fifth dimension of size 5, which is not
 partitioned among processes.
 
+In the above example, NUM_DUMPS = 40, Z = 512, Y = 512, X = 512, and FIVE_DBL =
+5. When I/O method is MPI collective I/O, there are `ncells` number of
+collective I/O calls per global variable and ncells = square root of number of
+MPI processes. When I/O method is MPI independent I/O, there are also `ncells`
+number of independent I/O calls per global variable made by each MPI process.
+When I/O method is PnetCDF blocking I/O, there are `ncells` number of
+collective PnetCDF I/O calls per global variable. In this case, there are
+`ncells` MPI collective I/O calls underneath PnetCDF per global variable. When
+I/O method is PnetCDF nonblocking I.O, there are `ncells` number of nonblocking
+PnetCDF I/O calls posted first, followed by an `nfmpi_waitall()` call to flush
+the requests. In this case, there is only one MPI collective I/O calls
+underneath PnetCDF per global variable.
+
 Example command to run an MPI job:
 ```
         mpiexec -n 1024 ./btio
